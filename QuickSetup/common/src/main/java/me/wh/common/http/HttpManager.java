@@ -181,8 +181,21 @@ public class HttpManager {
         return (T) mService;
     }
 
-    public <T> Observable<T> observable(@NonNull LifecycleProvider lifecycleProvider, @NonNull Observable<T> observable) {
-        return observable.compose(lifecycleProvider.<T>bindToLifecycle()).subscribeOn(Schedulers.io());
+    @SuppressWarnings("unchecked")
+    public <T> Observable<T> observable(Object lifecycleProvider, @NonNull Observable<T> observable) {
+        if (lifecycleProvider != null && lifecycleProvider instanceof LifecycleProvider) {
+            return observable(((LifecycleProvider) lifecycleProvider), observable);
+        } else {
+            return observable(observable);
+        }
+    }
+
+    private <T, R> Observable<T> observable(LifecycleProvider<R> lifecycleProvider, @NonNull Observable<T> observable) {
+        return observable(observable).compose(lifecycleProvider.<T>bindToLifecycle());
+    }
+
+    private <T> Observable<T> observable(@NonNull Observable<T> observable) {
+        return observable.subscribeOn(Schedulers.io()).unsubscribeOn(Schedulers.io());
     }
 
     public void clear(Activity activity) {

@@ -28,4 +28,8 @@ public class DataResponse {
     public void setMsg(String msg) {
         this.msg = msg;
     }
+
+    public boolean isSuccess() {
+        return ret == 200;
+    }
 }
