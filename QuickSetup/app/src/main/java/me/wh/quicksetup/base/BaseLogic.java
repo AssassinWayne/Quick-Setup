@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import me.wh.common.http.HttpManager;
-import me.wh.common.http.data.DataResponse;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
@@ -50,15 +49,7 @@ public abstract class BaseLogic {
                         return Subscribers.create(new Action1() {
                             @Override
                             public void call(Object o) {
-                                if (o instanceof DataResponse) {
-                                    if (((DataResponse) o).isSuccess()) {
-                                        subscriber.onNext(o);
-                                    } else {
-                                        throw new ApiError((DataResponse) o);
-                                    }
-                                } else {
-                                    subscriber.onCompleted();
-                                }
+                                subscriber.onNext(o);
                             }
                         }, new Action1<Throwable>() {
                             @Override
