@@ -1,23 +1,15 @@
 package me.wh.common.http;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
 import com.trello.rxlifecycle.LifecycleProvider;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import me.wh.common.thread.ThreadManager;
 import me.wh.common.util.LogUtil;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -28,7 +20,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,18 +29,11 @@ import rx.schedulers.Schedulers;
 public class HttpManager {
 
     private static final HttpManager sInstance = new HttpManager();
-    private static final String HANDLER_THREAD_NAME_CALL = "http-call-handle-thread";
-
-    private static final int TYPE_CALL_ADD = 0;
-    private static final int TYPE_CALL_DELETE = 1;
-    private static final int TYPE_CALL_CLEAR = 2;
 
     private final HashMap<Class, Object> mServiceMap = new HashMap<>();
-    private final HashMap<Object, HashSet<Call>> mCallMap = new HashMap<>();
     private final HashMap<String, String> mMoreInfo = new HashMap<>();
 
     private final Object mInitServiceLock = new Object();
-    private final Object mInitCallSetLock = new Object();
 
     private OkHttpClient mClient;
     private String mBaseApi;
@@ -59,24 +43,6 @@ public class HttpManager {
     private int mReadTimeout = 30;
 
     private OnAuthorizationListener mOnAuthorizationListener;
-
-    private Handler mCallHandler = new Handler(ThreadManager.get().getHandlerThreadLooper(HANDLER_THREAD_NAME_CALL)) {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case TYPE_CALL_ADD:
-                    processCallAdd((CallEntity) msg.obj);
-                    break;
-                case TYPE_CALL_DELETE:
-                    processCallDelete((CallEntity) msg.obj);
-                    break;
-                case TYPE_CALL_CLEAR:
-                    processCallClear(msg.obj);
-                    break;
-            }
-        }
-    };
 
     private Interceptor mMoreParamsInterceptor = new Interceptor() {
         @Override
@@ -191,37 +157,11 @@ public class HttpManager {
     }
 
     private <T, R> Observable<T> observable(LifecycleProvider<R> lifecycleProvider, @NonNull Observable<T> observable) {
-        return observable(observable).compose(lifecycleProvider.<T>bindToLifecycle());
+        return observable(observable.compose(lifecycleProvider.<T>bindToLifecycle()));
     }
 
     private <T> Observable<T> observable(@NonNull Observable<T> observable) {
         return observable.subscribeOn(Schedulers.io()).unsubscribeOn(Schedulers.io());
-    }
-
-    public void clear(Activity activity) {
-        clear((Object) activity);
-    }
-
-    public void clear(Fragment fragment) {
-        clear((Object) fragment);
-    }
-
-    public void clear(FragmentActivity activity) {
-        clear((Object) activity);
-    }
-
-    public void clear(android.app.Fragment fragment) {
-        clear((Object) fragment);
-    }
-
-    public void clear(Context context) {
-        clear((Object) context);
-    }
-
-    private void clear(Object object) {
-        if (object != null) {
-            mCallHandler.obtainMessage(TYPE_CALL_CLEAR, object).sendToTarget();
-        }
     }
 
     private synchronized OkHttpClient getOkHttpClient() {
@@ -245,50 +185,6 @@ public class HttpManager {
         return mClient;
     }
 
-    private void processCallAdd(CallEntity entity) {
-        Object object = entity.object;
-        Call call = entity.call;
-        if (object != null) {
-            HashSet<Call> callSet = mCallMap.get(object);
-            if (callSet == null) {
-                synchronized (mInitCallSetLock) {
-                    callSet = mCallMap.get(object);
-                    if (callSet == null) {
-                        callSet = new HashSet<>();
-                        mCallMap.put(object, callSet);
-                    }
-                }
-            }
-
-            callSet.add(call);
-        }
-    }
-
-    private void processCallDelete(CallEntity entity) {
-        Object object = entity.object;
-        Call call = entity.call;
-        if (object != null) {
-            HashSet<Call> callSet = mCallMap.get(object);
-            if (callSet != null) {
-                callSet.remove(call);
-            }
-            if (callSet == null || callSet.isEmpty()) {
-                mCallMap.remove(object);
-            }
-        }
-    }
-
-    private void processCallClear(Object object) {
-        if (object != null) {
-            HashSet<Call> callSet = mCallMap.remove(object);
-            if (callSet != null) {
-                for (Call call : callSet) {
-                    call.cancel();
-                }
-            }
-        }
-    }
-
     public interface OnAuthorizationListener {
         String getAuthorization();
     }
@@ -296,13 +192,4 @@ public class HttpManager {
     private HttpManager() {
     }
 
-    class CallEntity {
-        Object object;
-        Call call;
-
-        CallEntity(Object o, Call c) {
-            object = o;
-            call = c;
-        }
-    }
 }
