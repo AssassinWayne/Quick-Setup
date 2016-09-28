@@ -17,14 +17,14 @@ import rx.observers.Subscribers;
  */
 public abstract class BaseLogic {
 
-    public ApiService getApi() {
+    protected GitHubApi getApi() {
         return getApi(null);
     }
 
-    public ApiService getApi(Object lifecycleProvider) {
-        final ApiService service = HttpManager.getInstance().getService(ApiService.class);
+    protected GitHubApi getApi(Object lifecycleProvider) {
+        final GitHubApi service = HttpManager.getInstance().getService(GitHubApi.class);
         final InvocationHandler invoker = new ServiceInvoker(service, lifecycleProvider);
-        return (ApiService) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{ApiService.class}, invoker);
+        return (GitHubApi) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{GitHubApi.class}, invoker);
     }
 
     private static class ServiceInvoker implements InvocationHandler {
@@ -44,7 +44,7 @@ public abstract class BaseLogic {
             if (result instanceof Observable) {
                 Observable observable = (Observable) result;
                 observable = HttpManager.getInstance().observable(mLifecycleProvider, observable);
-                observable.lift(new Observable.Operator<Subscriber, Subscriber>() {
+                return observable.lift(new Observable.Operator<Subscriber, Subscriber>() {
                     @Override
                     public Subscriber call(final Subscriber subscriber) {
                         return Subscribers.create(new Action1() {

@@ -21,7 +21,7 @@ public class MyApplication extends CommonApplication {
         super.onCreate();
         LogUtil.build(true);
 
-        HttpManager.getInstance().config("https://apitest.petstar.me/", 30, 30, 30, getMoreParams(this));
+        HttpManager.getInstance().config("https://api.github.com/", 30, 30, 30, getMoreParams(this));
     }
 
     private HashMap<String, String> getMoreParams(Context context) {
