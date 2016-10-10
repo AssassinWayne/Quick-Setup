@@ -42,28 +42,28 @@ public abstract class BaseLogic {
             Object result = method.invoke(mService, objects);
             if (result instanceof Observable) {
                 Observable observable = (Observable) result;
-                observable = HttpManager.getInstance().observable(mLifecycleProvider, observable);
-                return observable.lift(new Observable.Operator<Subscriber, Subscriber>() {
-                    @Override
-                    public Subscriber call(final Subscriber subscriber) {
-                        return Subscribers.create(new Action1() {
-                            @Override
-                            public void call(Object o) {
-                                subscriber.onNext(o);
-                            }
-                        }, new Action1<Throwable>() {
-                            @Override
-                            public void call(Throwable throwable) {
-                                subscriber.onError(throwable);
-                            }
-                        }, new Action0() {
-                            @Override
-                            public void call() {
-                                subscriber.onCompleted();
-                            }
-                        });
-                    }
-                });
+                return  HttpManager.getInstance().observable(mLifecycleProvider, observable);
+//                return observable.lift(new Observable.Operator<Subscriber, Subscriber>() {
+//                    @Override
+//                    public Subscriber call(final Subscriber subscriber) {
+//                        return Subscribers.create(new Action1() {
+//                            @Override
+//                            public void call(Object o) {
+//                                subscriber.onNext(o);
+//                            }
+//                        }, new Action1<Throwable>() {
+//                            @Override
+//                            public void call(Throwable throwable) {
+//                                subscriber.onError(throwable);
+//                            }
+//                        }, new Action0() {
+//                            @Override
+//                            public void call() {
+//                                subscriber.onCompleted();
+//                            }
+//                        });
+//                    }
+//                });
             }
             return result;
         }

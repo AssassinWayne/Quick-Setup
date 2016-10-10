@@ -8,6 +8,7 @@ import retrofit2.http.Path;
 import rx.Observable;
 
 /**
+ * Api Interface
  * Created by WayneHu on 16/9/27.
  */
 public interface GitHubApi {
