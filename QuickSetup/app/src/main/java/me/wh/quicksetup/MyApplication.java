@@ -19,7 +19,7 @@ public class MyApplication extends CommonApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        LogUtil.build(true);
+        LogUtil.build(BuildConfig.DEBUG);
 
         HttpManager.getInstance().config("https://api.github.com/", 30, 30, 30, getMoreParams(this));
     }
