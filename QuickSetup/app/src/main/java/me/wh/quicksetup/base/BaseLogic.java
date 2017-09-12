@@ -4,12 +4,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import io.reactivex.Observable;
 import me.wh.common.http.HttpManager;
-import rx.Observable;
-import rx.Subscriber;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.observers.Subscribers;
 
 /**
  * Created by WayneHu on 16/9/27.

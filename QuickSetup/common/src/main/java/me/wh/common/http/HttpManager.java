@@ -3,13 +3,15 @@ package me.wh.common.http;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.trello.rxlifecycle.LifecycleProvider;
+import com.trello.rxlifecycle2.LifecycleProvider;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import me.wh.common.util.LogUtil;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
@@ -21,10 +23,8 @@ import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
-import rx.schedulers.Schedulers;
 
 public class HttpManager {
 
@@ -134,7 +134,7 @@ public class HttpManager {
                 if (mService == null) {
                     Retrofit retrofit = new Retrofit.Builder()
                             .addConverterFactory(GsonConverterFactory.create())
-                            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                             .client(getOkHttpClient())
                             .baseUrl(mBaseApi)
                             .build();

@@ -132,7 +132,7 @@ public class ImageManager {
                         e.printStackTrace();
                     }
                 }
-                callback.onExist(tempExist, tempFile == null ? null : tempFile);
+                callback.onExist(tempExist, tempFile);
             }
         });
     }

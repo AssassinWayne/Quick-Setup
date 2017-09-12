@@ -2,10 +2,10 @@ package me.wh.quicksetup.base;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import me.wh.quicksetup.pojo.GitHubUser;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import rx.Observable;
 
 /**
  * Api Interface
